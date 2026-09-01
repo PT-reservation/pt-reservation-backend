@@ -1,0 +1,63 @@
+package com.ptreservation.backend.domain;
+
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class FitnessClass {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trainer_id", nullable = false)
+    private Member trainer;
+
+    @Column(nullable = false, length = 100)
+    private String title;
+
+    @Column(nullable = false)
+    private LocalDateTime classDateTime;
+
+    @Column(nullable = false)
+    private int capacity;
+
+    @Column(nullable = false)
+    private int currentCount;
+
+    @Version
+    private Long version;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    public FitnessClass(Member trainer, String title, LocalDateTime classDateTime, int capacity) {
+        this.trainer = trainer;
+        this.title = title;
+        this.classDateTime = classDateTime;
+        this.capacity = capacity;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public void reserveSeat() {
+        if (this.currentCount >= this.capacity) {
+            throw new IllegalStateException("정원이 마감되었습니다.");
+        }
+        this.currentCount++;
+    }
+
+    public void releaseSeat() {
+        this.currentCount--;
+    }
+}
