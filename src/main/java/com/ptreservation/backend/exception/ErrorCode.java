@@ -10,7 +10,14 @@ public enum ErrorCode {
 
     // 클래스
     CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 클래스입니다."),
-    NOT_CLASS_OWNER(HttpStatus.FORBIDDEN, "본인이 등록한 클래스만 수정/삭제할 수 있습니다.");
+    NOT_CLASS_OWNER(HttpStatus.FORBIDDEN, "본인이 등록한 클래스만 수정/삭제할 수 있습니다."),
+
+    // 예약
+    NO_TICKET(HttpStatus.BAD_REQUEST, "사용 가능한 세션권이 없습니다."),
+    ALREADY_RESERVED(HttpStatus.CONFLICT, "이미 예약한 클래스입니다."),
+    RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 예약입니다."),
+    NOT_RESERVATION_OWNER(HttpStatus.FORBIDDEN, "본인 예약만 취소할 수 있습니다."),
+    RESERVATION_CONFLICT(HttpStatus.CONFLICT, "예약 요청이 몰려 처리하지 못했습니다. 다시 시도해주세요.");
 
     private final HttpStatus status;
     private final String message;
