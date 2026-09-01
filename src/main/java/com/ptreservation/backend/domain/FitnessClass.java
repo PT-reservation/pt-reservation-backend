@@ -60,4 +60,13 @@ public class FitnessClass {
     public void releaseSeat() {
         this.currentCount--;
     }
+
+    public void update(String title, LocalDateTime classDateTime, int capacity) {
+        if (capacity < this.currentCount) {
+            throw new IllegalStateException("이미 예약된 인원보다 정원을 적게 설정할 수 없습니다.");
+        }
+        this.title = title;
+        this.classDateTime = classDateTime;
+        this.capacity = capacity;
+    }
 }
