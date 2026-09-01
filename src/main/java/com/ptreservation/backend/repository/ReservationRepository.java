@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
+    List<Reservation> findAllByMemberOrderByReservedAtDesc(Member member);
+
     List<Reservation> findAllByFitnessClass(FitnessClass fitnessClass);
 
     boolean existsByFitnessClassAndMemberAndStatusIn(
