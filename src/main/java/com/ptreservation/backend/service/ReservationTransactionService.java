@@ -11,7 +11,10 @@ import com.ptreservation.backend.repository.FitnessClassRepository;
 import com.ptreservation.backend.repository.MemberRepository;
 import com.ptreservation.backend.repository.ReservationRepository;
 import com.ptreservation.backend.repository.SessionTicketRepository;
+import com.ptreservation.backend.sse.ReservationPromotedEvent;
+import com.ptreservation.backend.sse.SeatUpdatedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,7 @@ public class ReservationTransactionService {
     private final MemberRepository memberRepository;
     private final ReservationRepository reservationRepository;
     private final SessionTicketRepository sessionTicketRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public ReservationResponse reserve(String memberEmail, Long classId) {
@@ -56,6 +60,7 @@ public class ReservationTransactionService {
 
         if (status == Reservation.Status.CONFIRMED) {
             ticket.use();
+            eventPublisher.publishEvent(new SeatUpdatedEvent(classId, fitnessClass.getCurrentCount(), fitnessClass.getCapacity()));
         }
 
         return ReservationResponse.from(reservation);
@@ -79,6 +84,8 @@ public class ReservationTransactionService {
             getTicket(reservation.getMember()).refund();
 
             promoteNextWaiting(fitnessClass);
+            eventPublisher.publishEvent(new SeatUpdatedEvent(
+                    fitnessClass.getId(), fitnessClass.getCurrentCount(), fitnessClass.getCapacity()));
         }
     }
 
@@ -89,6 +96,8 @@ public class ReservationTransactionService {
             fitnessClass.reserveSeat();
             nextReservation.confirm();
             getTicket(nextReservation.getMember()).use();
+            eventPublisher.publishEvent(
+                    new ReservationPromotedEvent(nextReservation.getMember().getEmail(), fitnessClass.getId()));
         });
     }
 
