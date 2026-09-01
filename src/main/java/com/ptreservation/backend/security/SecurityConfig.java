@@ -35,6 +35,9 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs", "/webjars/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/classes/**").permitAll()
                         .requestMatchers("/trainers/**").hasRole("TRAINER")
+                        .requestMatchers(HttpMethod.POST, "/classes/*/reservations").hasRole("MEMBER")
+                        .requestMatchers("/reservations/**").hasRole("MEMBER")
+                        .requestMatchers("/members/**").hasRole("MEMBER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
