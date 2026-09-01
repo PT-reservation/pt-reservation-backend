@@ -4,3 +4,7 @@ spring:
     username: root
     password: root1234
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+jwt:
+  secret: "pt-reservation-jwt-secret-key-must-be-long-enough-for-hs256-algorithm"
+  expiration: 86400000
