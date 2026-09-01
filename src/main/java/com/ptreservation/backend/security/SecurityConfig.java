@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/classes/*/reservations").hasRole("MEMBER")
                         .requestMatchers("/reservations/**").hasRole("MEMBER")
                         .requestMatchers("/members/**").hasRole("MEMBER")
+                        .requestMatchers("/notifications/**").hasRole("MEMBER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
