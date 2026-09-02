@@ -30,6 +30,8 @@ graph TB
     FE -->|REST API + JWT| BE
     FE -->|SSE EventSource| BE
     BE -->|JDBC| DB
+```
+```mermaid
 sequenceDiagram
     participant U1 as 회원 A (예약 시도)
     participant U2 as 회원 B (같은 클래스 구독 중)
@@ -48,6 +50,7 @@ sequenceDiagram
     BE->>BE: AFTER_COMMIT 시점에 SeatUpdatedEvent 발행
     BE-->>U1: 200 OK
     BE-->>U2: SSE seatUpdated (새로고침 없이 좌석 수 갱신)
+```
 ---
 
 ## 이 프로젝트가 증명하는 것
