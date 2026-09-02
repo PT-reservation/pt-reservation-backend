@@ -33,13 +33,14 @@ public class DataSeeder implements CommandLineRunner {
         Member trainer = memberRepository.save(
                 new Member("trainer@test.com", passwordEncoder.encode("password123"), "김트레이너", Member.Role.TRAINER));
 
-        Member member = memberRepository.save(
-                new Member("member@test.com", passwordEncoder.encode("password123"), "이회원", Member.Role.MEMBER));
-
-        sessionTicketRepository.save(new SessionTicket(member, 10));
+        for (int i = 1; i <= 4; i++) {
+            Member member = memberRepository.save(
+                    new Member("member" + i + "@test.com", passwordEncoder.encode("password123"), "회원" + i, Member.Role.MEMBER));
+            sessionTicketRepository.save(new SessionTicket(member, 10));
+        }
 
         fitnessClassRepository.save(new FitnessClass(
-                trainer, "하체 집중 그룹 PT", LocalDateTime.now().plusDays(1).withHour(19).withMinute(0), 6));
+                trainer, "정원 테스트용 클래스 (정원 2명)", LocalDateTime.now().plusDays(1).withHour(19).withMinute(0), 2));
         fitnessClassRepository.save(new FitnessClass(
                 trainer, "상체 집중 그룹 PT", LocalDateTime.now().plusDays(2).withHour(20).withMinute(0), 4));
         fitnessClassRepository.save(new FitnessClass(
