@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
 @Component
-@Profile("local")
+@Profile("seed")
 @RequiredArgsConstructor
 public class DataSeeder implements CommandLineRunner {
 
