@@ -33,6 +33,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalStateException(IllegalStateException e) {
+        ApiResponse<Void> response = new ApiResponse<>(false, "INVALID_STATE", e.getMessage(), null);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
         log.error("예상하지 못한 서버 에러 발생", e);
