@@ -20,4 +20,9 @@ public class SseEventListener {
     public void handleReservationPromoted(ReservationPromotedEvent event) {
         sseEmitterRepository.sendToMember(event.memberEmail(), "reservationPromoted", event);
     }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handlePromotionSkipped(PromotionSkippedEvent event) {
+        sseEmitterRepository.sendToMember(event.memberEmail(), "promotionSkipped", event);
+    }
 }

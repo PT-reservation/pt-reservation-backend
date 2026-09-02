@@ -11,6 +11,7 @@ import com.ptreservation.backend.repository.FitnessClassRepository;
 import com.ptreservation.backend.repository.MemberRepository;
 import com.ptreservation.backend.repository.ReservationRepository;
 import com.ptreservation.backend.repository.SessionTicketRepository;
+import com.ptreservation.backend.sse.PromotionSkippedEvent;
 import com.ptreservation.backend.sse.ReservationPromotedEvent;
 import com.ptreservation.backend.sse.SeatUpdatedEvent;
 import lombok.RequiredArgsConstructor;
@@ -90,15 +91,25 @@ public class ReservationTransactionService {
     }
 
     private void promoteNextWaiting(FitnessClass fitnessClass) {
-        reservationRepository.findFirstByFitnessClassAndStatusOrderByReservedAtAsc(
-                fitnessClass, Reservation.Status.WAITLISTED
-        ).ifPresent(nextReservation -> {
+        List<Reservation> waitlist = reservationRepository.findAllByFitnessClassAndStatusOrderByReservedAtAsc(
+                fitnessClass, Reservation.Status.WAITLISTED);
+
+        for (Reservation candidate : waitlist) {
+            SessionTicket ticket = getTicket(candidate.getMember());
+
+            if (ticket.getRemainingCount() <= 0) {
+                eventPublisher.publishEvent(
+                        new PromotionSkippedEvent(candidate.getMember().getEmail(), fitnessClass.getId()));
+                continue;
+            }
+
             fitnessClass.reserveSeat();
-            nextReservation.confirm();
-            getTicket(nextReservation.getMember()).use();
+            candidate.confirm();
+            ticket.use();
             eventPublisher.publishEvent(
-                    new ReservationPromotedEvent(nextReservation.getMember().getEmail(), fitnessClass.getId()));
-        });
+                    new ReservationPromotedEvent(candidate.getMember().getEmail(), fitnessClass.getId()));
+            return;
+        }
     }
 
     private Member getMember(String email) {
