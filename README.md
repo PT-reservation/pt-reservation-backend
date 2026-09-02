@@ -10,6 +10,49 @@
 
 ---
 
+## 아키텍처
+
+```mermaid
+graph TB
+    subgraph Client
+        Browser[사용자 브라우저]
+    end
+    subgraph Vercel
+        FE[Next.js Frontend]
+    end
+    subgraph Render
+        BE[Spring Boot Backend]
+    end
+    subgraph Aiven
+        DB[(MySQL)]
+    end
+    Browser -->|HTTPS| FE
+    FE -->|REST API + JWT| BE
+    FE -->|SSE EventSource| BE
+    BE -->|JDBC| DB
+```
+```mermaid
+sequenceDiagram
+    participant U1 as 회원 A (예약 시도)
+    participant U2 as 회원 B (같은 클래스 구독 중)
+    participant BE as Backend
+    participant DB as MySQL
+
+    U1->>BE: POST /classes/{id}/reservations
+    BE->>DB: FitnessClass 조회 (version 확인)
+    BE->>DB: UPDATE FitnessClass (currentCount++, 낙관적 락 체크)
+    alt 버전 충돌 또는 데드락 발생
+        DB-->>BE: 예외
+        BE->>BE: 재시도 (최대 30회)
+    end
+    BE->>DB: INSERT Reservation (CONFIRMED)
+    BE->>DB: COMMIT
+    BE->>BE: AFTER_COMMIT 시점에 SeatUpdatedEvent 발행
+    BE-->>U1: 200 OK
+    BE-->>U2: SSE seatUpdated (새로고침 없이 좌석 수 갱신)
+```
+---
+
 ## 이 프로젝트가 증명하는 것
 
 ### 1. 낙관적 락(Optimistic Lock)으로 동시성 제어
