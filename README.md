@@ -71,6 +71,10 @@ sequenceDiagram
 - **해결**: 정원 UPDATE(`saveAndFlush`)를 예약 INSERT보다 먼저 실행하도록 순서를 바꿔 배타 락을 먼저 선점 — 순환 대기 자체를 차단. 재시도 로직도 `ObjectOptimisticLockingFailureException`이 아닌 상위 타입 `ConcurrencyFailureException`을 잡도록 확장해 데드락도 재시도 대상에 포함
 - **결과**: 20명 동시 요청 → 실패 0건, 확정 5 / 대기 15, `currentCount` 5로 정확히 일치
 
+### 실행 화면
+
+![동시성 테스트 데모](docs/demo-concurrency-test.gif)
+
 ### 3. SSE로 실시간 반영
 
 - 클래스 상세 페이지에서 좌석 변동이 실시간으로 반영됩니다 (`GET /classes/{id}/events`)
