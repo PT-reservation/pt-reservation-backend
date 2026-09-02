@@ -17,6 +17,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     boolean existsByFitnessClassAndMemberAndStatusIn(
             FitnessClass fitnessClass, Member member, List<Reservation.Status> statuses);
 
-    Optional<Reservation> findFirstByFitnessClassAndStatusOrderByReservedAtAsc(
+    List<Reservation> findAllByFitnessClassAndStatusOrderByReservedAtAsc(
             FitnessClass fitnessClass, Reservation.Status status);
 }
