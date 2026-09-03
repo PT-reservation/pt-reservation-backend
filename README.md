@@ -1,4 +1,4 @@
-# PT팟 — Frontend
+# PT팟 — Backend
 
 그룹 PT 클래스 예약 시스템의 백엔드입니다. **동시 요청 상황에서 데이터 정합성을 지키는 것**과 **실시간으로 상태 변화를 클라이언트에 전달하는 것**, 이 두 가지에 집중해서 만들었습니다.
 
@@ -31,6 +31,9 @@ graph TB
     FE -->|SSE EventSource| BE
     BE -->|JDBC| DB
 ```
+
+### 예약 처리 + 실시간 반영 흐름
+
 ```mermaid
 sequenceDiagram
     participant U1 as 회원 A (예약 시도)
@@ -51,6 +54,7 @@ sequenceDiagram
     BE-->>U1: 200 OK
     BE-->>U2: SSE seatUpdated (새로고침 없이 좌석 수 갱신)
 ```
+
 ---
 
 ## 이 프로젝트가 증명하는 것
@@ -104,7 +108,7 @@ sequenceDiagram
 | 엔티티 | 주요 필드 |
 |---|---|
 | `Member` | email, password, name, role(`MEMBER`/`TRAINER`) |
-| `FitnessClass` | title, trainer, classDateTime, capacity, currentCount, **version**(낙관적 락) |
+| `FitnessClass` | title, trainer, classDateTime, capacity, currentCount, description, imageUrl, **version**(낙관적 락) |
 | `Reservation` | member, fitnessClass, status(`CONFIRMED`/`WAITLISTED`/`CANCELLED`), reservedAt |
 | `SessionTicket` | member, totalCount, remainingCount |
 
@@ -128,6 +132,7 @@ sequenceDiagram
 | PUT | `/trainers/me/classes/{id}` | TRAINER | 클래스 수정 |
 | DELETE | `/trainers/me/classes/{id}` | TRAINER | 클래스 삭제 |
 | GET | `/trainers/me/classes` | TRAINER | 내 클래스 목록 조회 |
+| GET | `/trainers/me/classes/{id}/reservations` | TRAINER | 내 클래스의 예약자 명단 조회 |
 
 전체 요청/응답 스펙은 [Swagger UI](https://pt-reservation-backend.onrender.com/swagger-ui/index.html)에서 확인할 수 있습니다.
 
@@ -144,18 +149,20 @@ docker compose up -d
 
 # 3. 애플리케이션 실행 (local 프로필)
 ./gradlew bootRun --args='--spring.profiles.active=local'
-
-# 3. 애플리케이션 실행 (local 프로필)
-./gradlew bootRun --args='--spring.profiles.active=local'
+```
 
 > 더미 데이터가 필요하면 `seed` 프로필을 추가하세요: `./gradlew bootRun --args='--spring.profiles.active=local,seed'` (트레이너 1명, 회원 4명, 클래스 3개 자동 생성 — 이미 데이터가 있으면 스킵)
 
-# 4. 동시성 테스트 실행
-./gradlew test --tests ReservationConcurrencyTest
+## 동시성 테스트 실행
 
-> 이 테스트는 자체적으로 데이터를 생성하고(@BeforeEach) 종료 후 정리합니다(@AfterEach). 로컬 개발용 더미 데이터(DataSeeder)와 완전히 격리되어 있어, 시드 데이터 유무와 무관하게 항상 동일하게 동작합니다.
+```bash
+./gradlew test --tests ReservationConcurrencyTest
 ```
+
+이 테스트는 자체적으로 데이터를 생성하고(`@BeforeEach`) 종료 후 정리합니다(`@AfterEach`). 로컬 개발용 더미 데이터(`DataSeeder`)와 완전히 격리되어 있어, 시드 데이터 유무와 무관하게 항상 동일하게 동작합니다.
+
 ## 알려진 제한사항
+
 - 회원가입 시 역할(MEMBER/TRAINER)을 사용자가 직접 선택합니다. 실제 서비스라면 트레이너 권한 부여에 별도 검증/승인 절차가 필요하지만, 이 프로젝트는 포트폴리오 데모 목적상 누구나 두 역할을 쉽게 체험해볼 수 있도록 의도적으로 승인 절차를 생략했습니다.
 - 대기열 우선순위 엣지케이스: 대기자 전원이 세션권 부족으로 스킵된 상태에서 신규 예약자가 빈 자리를 먼저 가져갈 수 있음 (정원 초과 같은 데이터 정합성 문제는 아니고, 우선순위 공정성 문제로 스코프상 의도적으로 보류)
 - SSE 인증에 URL 쿼리 파라미터로 JWT를 전달함 (브라우저 EventSource가 커스텀 헤더를 지원하지 않는 제약 때문) — 접근 로그에 토큰이 남을 수 있어, 실무라면 SSE 전용 단기 티켓 발급 방식으로 개선했을 부분
