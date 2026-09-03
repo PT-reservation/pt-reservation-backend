@@ -76,6 +76,10 @@ public class ReservationTransactionService {
             throw new BusinessException(ErrorCode.NOT_RESERVATION_OWNER);
         }
 
+        if (reservation.getStatus() == Reservation.Status.CANCELLED) {
+            throw new BusinessException(ErrorCode.ALREADY_CANCELLED);
+        }
+
         Reservation.Status previousStatus = reservation.getStatus();
         reservation.cancel();
 
