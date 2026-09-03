@@ -37,7 +37,6 @@ public class SessionTicketService {
     }
 
     private Member getMember(String email) {
-        return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+        return memberRepository.getByEmailOrThrow(email);
     }
 }
