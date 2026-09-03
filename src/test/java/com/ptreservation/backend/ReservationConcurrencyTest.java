@@ -48,7 +48,7 @@ class ReservationConcurrencyTest {
     @BeforeEach
     void setUp() {
         Member trainer = memberRepository.save(
-                new Member("trainer@test.com", "encoded", "트레이너", Member.Role.TRAINER));
+                new Member("concurrency-trainer@test.com", "encoded", "트레이너", Member.Role.TRAINER));
 
         fitnessClass = fitnessClassRepository.save(
                 new FitnessClass(trainer, "동시성 테스트 클래스", LocalDateTime.now().plusDays(1), CAPACITY));
@@ -56,7 +56,7 @@ class ReservationConcurrencyTest {
         members = new ArrayList<>();
         for (int i = 0; i < MEMBER_COUNT; i++) {
             Member member = memberRepository.save(
-                    new Member("member" + i + "@test.com", "encoded", "회원" + i, Member.Role.MEMBER));
+                    new Member("concurrency-member" + i + "@test.com", "encoded", "회원" + i, Member.Role.MEMBER));
             sessionTicketRepository.save(new SessionTicket(member, 10));
             members.add(member);
         }
@@ -116,6 +116,6 @@ class ReservationConcurrencyTest {
                 .toList());
         fitnessClassRepository.deleteById(fitnessClass.getId());
         memberRepository.deleteAll(members);
-        memberRepository.findByEmail("trainer@test.com").ifPresent(memberRepository::delete);
+        memberRepository.findByEmail("concurrency-trainer@test.com").ifPresent(memberRepository::delete);
     }
 }
