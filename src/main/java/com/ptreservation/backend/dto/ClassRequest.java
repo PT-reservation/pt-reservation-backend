@@ -12,7 +12,7 @@ public record ClassRequest(
         @NotBlank String title,
         @NotNull @Future LocalDateTime classDateTime,
         @NotNull @Min(1) Integer capacity,
-        @Size(max = 1000) String description,
+        @NotBlank @Size(max = 1000) String description,
         @Size(max = 500) String imageUrl
 ) {
 }
