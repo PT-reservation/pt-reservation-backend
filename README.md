@@ -145,4 +145,11 @@ docker compose up -d
 # 3. 애플리케이션 실행 (local 프로필)
 ./gradlew bootRun --args='--spring.profiles.active=local'
 
+# 3. 애플리케이션 실행 (local 프로필)
+./gradlew bootRun --args='--spring.profiles.active=local'
+
 > 더미 데이터가 필요하면 `seed` 프로필을 추가하세요: `./gradlew bootRun --args='--spring.profiles.active=local,seed'` (트레이너 1명, 회원 4명, 클래스 3개 자동 생성 — 이미 데이터가 있으면 스킵)
+
+# 4. 동시성 테스트 실행
+./gradlew test --tests ReservationConcurrencyTest
+```
