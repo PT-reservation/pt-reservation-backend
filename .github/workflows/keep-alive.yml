@@ -1,0 +1,13 @@
+name: Keep Alive
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend to prevent Render/Aiven sleep
+        run: curl -sf https://pt-reservation-backend.onrender.com/classes || echo "Ping failed (backend may still be cold-starting)"
