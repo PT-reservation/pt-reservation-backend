@@ -6,6 +6,7 @@ import com.ptreservation.backend.dto.ReservationResponse;
 import com.ptreservation.backend.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,5 +28,11 @@ public class MemberController {
     @GetMapping("/reservations")
     public ApiResponse<List<ReservationResponse>> getMyReservations(Authentication authentication) {
         return ApiResponse.ok(memberService.getMyReservations(authentication.getName()));
+    }
+
+    @DeleteMapping
+    public ApiResponse<Void> deleteAccount(Authentication authentication) {
+        memberService.deleteAccount(authentication.getName());
+        return ApiResponse.ok();
     }
 }
