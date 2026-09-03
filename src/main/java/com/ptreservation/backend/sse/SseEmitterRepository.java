@@ -18,20 +18,24 @@ public class SseEmitterRepository {
     private final Map<String, List<SseEmitter>> memberEmitters = new ConcurrentHashMap<>();
 
     public SseEmitter subscribeToClass(Long classId) {
-        SseEmitter emitter = new SseEmitter(TIMEOUT);
-        List<SseEmitter> emitters = classEmitters.computeIfAbsent(classId, id -> new CopyOnWriteArrayList<>());
-        emitters.add(emitter);
-
-        emitter.onCompletion(() -> emitters.remove(emitter));
-        emitter.onTimeout(() -> emitters.remove(emitter));
-        emitter.onError(e -> emitters.remove(emitter));
-
-        return emitter;
+        return subscribe(classEmitters, classId);
     }
 
     public SseEmitter subscribeToMember(String email) {
+        return subscribe(memberEmitters, email);
+    }
+
+    public void sendToClass(Long classId, String eventName, Object data) {
+        send(classEmitters, classId, eventName, data);
+    }
+
+    public void sendToMember(String email, String eventName, Object data) {
+        send(memberEmitters, email, eventName, data);
+    }
+
+    private <K> SseEmitter subscribe(Map<K, List<SseEmitter>> registry, K key) {
         SseEmitter emitter = new SseEmitter(TIMEOUT);
-        List<SseEmitter> emitters = memberEmitters.computeIfAbsent(email, e -> new CopyOnWriteArrayList<>());
+        List<SseEmitter> emitters = registry.computeIfAbsent(key, k -> new CopyOnWriteArrayList<>());
         emitters.add(emitter);
 
         emitter.onCompletion(() -> emitters.remove(emitter));
@@ -41,21 +45,8 @@ public class SseEmitterRepository {
         return emitter;
     }
 
-    public void sendToClass(Long classId, String eventName, Object data) {
-        List<SseEmitter> emitters = classEmitters.get(classId);
-        if (emitters == null) return;
-
-        for (SseEmitter emitter : emitters) {
-            try {
-                emitter.send(SseEmitter.event().name(eventName).data(data));
-            } catch (IOException e) {
-                emitters.remove(emitter);
-            }
-        }
-    }
-
-    public void sendToMember(String email, String eventName, Object data) {
-        List<SseEmitter> emitters = memberEmitters.get(email);
+    private <K> void send(Map<K, List<SseEmitter>> registry, K key, String eventName, Object data) {
+        List<SseEmitter> emitters = registry.get(key);
         if (emitters == null) return;
 
         for (SseEmitter emitter : emitters) {
