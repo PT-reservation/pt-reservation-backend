@@ -3,6 +3,7 @@ package com.ptreservation.backend.service;
 import com.ptreservation.backend.domain.FitnessClass;
 import com.ptreservation.backend.domain.Member;
 import com.ptreservation.backend.domain.Reservation;
+import com.ptreservation.backend.domain.SessionTicket;
 import com.ptreservation.backend.dto.ClassRequest;
 import com.ptreservation.backend.dto.ClassReservationResponse;
 import com.ptreservation.backend.dto.ClassResponse;
@@ -10,6 +11,7 @@ import com.ptreservation.backend.exception.BusinessException;
 import com.ptreservation.backend.exception.ErrorCode;
 import com.ptreservation.backend.repository.FitnessClassRepository;
 import com.ptreservation.backend.repository.MemberRepository;
+import com.ptreservation.backend.repository.SessionTicketRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,7 @@ public class ClassService {
     private final FitnessClassRepository fitnessClassRepository;
     private final MemberRepository memberRepository;
     private final ReservationRepository reservationRepository;
+    private final SessionTicketRepository sessionTicketRepository;
 
     @Transactional
     public ClassResponse createClass(String trainerEmail, ClassRequest request) {
@@ -60,6 +63,16 @@ public class ClassService {
     @Transactional
     public void deleteClass(String trainerEmail, Long classId) {
         FitnessClass fitnessClass = getOwnedClass(trainerEmail, classId);
+
+        List<Reservation> reservations = reservationRepository.findAllByFitnessClass(fitnessClass);
+        for (Reservation reservation : reservations) {
+            if (reservation.getStatus() == Reservation.Status.CONFIRMED) {
+                sessionTicketRepository.findByMember(reservation.getMember())
+                        .ifPresent(SessionTicket::refund);
+            }
+        }
+        reservationRepository.deleteAll(reservations);
+
         fitnessClassRepository.delete(fitnessClass);
     }
 
