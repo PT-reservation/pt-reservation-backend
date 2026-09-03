@@ -38,8 +38,7 @@ public class AuthService {
     }
 
     public LoginResponse login(LoginRequest request) {
-        Member member = memberRepository.findByEmail(request.email())
-                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.getByEmailOrThrow(request.email());
 
         if (!passwordEncoder.matches(request.password(), member.getPassword())) {
             throw new BusinessException(ErrorCode.INVALID_PASSWORD);

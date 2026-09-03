@@ -70,8 +70,7 @@ public class ClassService {
     }
 
     private Member getTrainer(String email) {
-        return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+        return memberRepository.getByEmailOrThrow(email);
     }
 
     private FitnessClass getOwnedClass(String trainerEmail, Long classId) {
