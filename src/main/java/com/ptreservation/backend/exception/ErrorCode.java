@@ -18,7 +18,8 @@ public enum ErrorCode {
     RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 예약입니다."),
     NOT_RESERVATION_OWNER(HttpStatus.FORBIDDEN, "본인 예약만 취소할 수 있습니다."),
     RESERVATION_CONFLICT(HttpStatus.CONFLICT, "예약 요청이 몰려 처리하지 못했습니다. 다시 시도해주세요."),
-    ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소된 예약입니다.");
+    ALREADY_CANCELLED(HttpStatus.CONFLICT, "이미 취소된 예약입니다."),
+    TRAINER_HAS_CLASSES(HttpStatus.CONFLICT, "본인이 개설한 클래스가 있어 탈퇴할 수 없습니다. 먼저 클래스를 모두 삭제해주세요.");
 
     private final HttpStatus status;
     private final String message;

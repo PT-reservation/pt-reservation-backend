@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface FitnessClassRepository extends JpaRepository<FitnessClass, Long> {
     List<FitnessClass> findAllByTrainer(Member trainer);
+    boolean existsByTrainer(Member trainer);
 }
