@@ -30,7 +30,9 @@ public class ClassService {
                 trainer,
                 request.title(),
                 request.classDateTime(),
-                request.capacity()
+                request.capacity(),
+                request.description(),
+                request.imageUrl()
         );
 
         fitnessClassRepository.save(fitnessClass);
@@ -40,7 +42,13 @@ public class ClassService {
     @Transactional
     public ClassResponse updateClass(String trainerEmail, Long classId, ClassRequest request) {
         FitnessClass fitnessClass = getOwnedClass(trainerEmail, classId);
-        fitnessClass.update(request.title(), request.classDateTime(), request.capacity());
+        fitnessClass.update(
+                request.title(),
+                request.classDateTime(),
+                request.capacity(),
+                request.description(),
+                request.imageUrl()
+        );
         return ClassResponse.from(fitnessClass);
     }
 

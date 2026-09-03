@@ -10,7 +10,9 @@ public record ClassResponse(
         String trainerName,
         LocalDateTime classDateTime,
         int capacity,
-        int currentCount
+        int currentCount,
+        String description,
+        String imageUrl
 ) {
     public static ClassResponse from(FitnessClass fitnessClass) {
         return new ClassResponse(
@@ -19,7 +21,9 @@ public record ClassResponse(
                 fitnessClass.getTrainer().getName(),
                 fitnessClass.getClassDateTime(),
                 fitnessClass.getCapacity(),
-                fitnessClass.getCurrentCount()
+                fitnessClass.getCurrentCount(),
+                fitnessClass.getDescription(),
+                fitnessClass.getImageUrl()
         );
     }
 }
