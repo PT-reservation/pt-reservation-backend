@@ -2,7 +2,9 @@ package com.ptreservation.backend.service;
 
 import com.ptreservation.backend.domain.FitnessClass;
 import com.ptreservation.backend.domain.Member;
+import com.ptreservation.backend.domain.Reservation;
 import com.ptreservation.backend.dto.ClassRequest;
+import com.ptreservation.backend.dto.ClassReservationResponse;
 import com.ptreservation.backend.dto.ClassResponse;
 import com.ptreservation.backend.exception.BusinessException;
 import com.ptreservation.backend.exception.ErrorCode;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import com.ptreservation.backend.repository.ReservationRepository;
+import java.util.Comparator;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ public class ClassService {
 
     private final FitnessClassRepository fitnessClassRepository;
     private final MemberRepository memberRepository;
+    private final ReservationRepository reservationRepository;
 
     @Transactional
     public ClassResponse createClass(String trainerEmail, ClassRequest request) {
@@ -74,6 +79,14 @@ public class ClassService {
         Member trainer = getTrainer(trainerEmail);
         return fitnessClassRepository.findAllByTrainer(trainer).stream()
                 .map(ClassResponse::from)
+                .toList();
+    }
+
+    public List<ClassReservationResponse> getClassReservations(String trainerEmail, Long classId) {
+        FitnessClass fitnessClass = getOwnedClass(trainerEmail, classId);
+        return reservationRepository.findAllByFitnessClass(fitnessClass).stream()
+                .sorted(Comparator.comparing(Reservation::getReservedAt))
+                .map(ClassReservationResponse::from)
                 .toList();
     }
 

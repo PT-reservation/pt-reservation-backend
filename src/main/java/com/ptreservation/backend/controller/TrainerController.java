@@ -2,6 +2,7 @@ package com.ptreservation.backend.controller;
 
 import com.ptreservation.backend.common.ApiResponse;
 import com.ptreservation.backend.dto.ClassRequest;
+import com.ptreservation.backend.dto.ClassReservationResponse;
 import com.ptreservation.backend.dto.ClassResponse;
 import com.ptreservation.backend.service.ClassService;
 import jakarta.validation.Valid;
@@ -50,5 +51,13 @@ public class TrainerController {
     @GetMapping
     public ApiResponse<List<ClassResponse>> getMyClasses(Authentication authentication) {
         return ApiResponse.ok(classService.getMyClasses(authentication.getName()));
+    }
+
+    @GetMapping("/{classId}/reservations")
+    public ApiResponse<List<ClassReservationResponse>> getClassReservations(
+            Authentication authentication,
+            @PathVariable Long classId
+    ) {
+        return ApiResponse.ok(classService.getClassReservations(authentication.getName(), classId));
     }
 }
